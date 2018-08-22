@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dialogListSidePadding">15dp</dimen>
+    <dimen name="dialogListTextSize">14sp</dimen>
+    <dimen name="dialogListItemPaddng">10dp</dimen>
+
+    <!-- key value label -->
+    <dimen name="labelContainerPadding">10dp</dimen>
+    <dimen name="labelSidePadding">5dp</dimen>
+    <dimen name="labelTextSize">12sp</dimen>
+    <dimen name="valueTextSize">15sp</dimen>
+
+    <dimen name="aquariumListPadding">10dp</dimen>
+    <dimen name="aquariumListPhoto">50dp</dimen>
+
+    <dimen name="dialogTitle">16dp</dimen>
+</resources>

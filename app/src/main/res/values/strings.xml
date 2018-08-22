@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Aqua Care</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+
+    <!-- create aquarium -->
+    <string name="dialog_title">Create Aquarium</string>
+    <string name="dialog_message">Choose image for Aquarium.</string>
+    <string name="option_camera">Camera</string>
+    <string name="option_gallery">Choose From Gallery</string>
+    <string name="hint_aquarium_name">Aquarium Name</string>
+    <string name="hint_aquarium_description">Description</string>
+    <string name="hint_aquarium_length">length (cm)</string>
+    <string name="hint_aquarium_height">height (cm)</string>
+    <string name="hint_aquarium_wide">wide (cm)</string>
+
+    <!-- common -->
+    <string name="insert_data_success">Successfully Insert</string>
+    <string name="insert_data_failed">Failed to Insert</string>
+    <string name="update_data_success">Successfully Update</string>
+
+    <!-- fragments -->
+    <string name="fragment_home">fragment home</string>
+
+    <!-- create aquarium -->
+    <string name="dialog_fish_title">Create Fish</string>
+    <string name="dialog_fish_message">Choose image for Fish.</string>
+
+</resources>

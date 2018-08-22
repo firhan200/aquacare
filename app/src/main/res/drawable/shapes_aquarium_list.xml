@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/aquariumListBackground"/>
+
+    <stroke android:color="@color/aquariumListStroke" android:width="1dp"/>
+
+    <padding
+        android:right="@dimen/aquariumListPadding"
+        android:bottom="@dimen/aquariumListPadding"
+        android:left="@dimen/aquariumListPadding"
+        android:top="@dimen/aquariumListPadding"/>
+</shape>

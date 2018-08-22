@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3fabb5</color>
+    <color name="colorPrimaryDark">#30929f</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="buttonTextColor">#FFFFFF</color>
+
+    <!-- key value label -->
+    <color name="labelTextColor">#000000</color>
+
+    <color name="aquariumListBackground">#f2f2f2</color>
+    <color name="aquariumListStroke">#e6e6e6</color>
+
+    <color name="aquariumDetailName">#e4f5f7</color>
+    <color name="aquariumDetailDesc">#fff</color>
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@drawable/shapes_aquarium_list"
+    android:layout_marginTop="-2dp"
+    android:layout_marginLeft="-1dp"
+    android:layout_marginRight="-1dp">
+
+    <ImageView
+        android:id="@+id/listItemAquariumPhoto"
+        android:layout_centerVertical="true"
+        android:layout_width="@dimen/aquariumListPhoto"
+        android:layout_height="@dimen/aquariumListPhoto"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_toEndOf="@id/listItemAquariumPhoto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/listItemAquariumName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/listItemAquariumDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
