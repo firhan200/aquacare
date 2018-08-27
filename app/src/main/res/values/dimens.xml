@@ -15,7 +15,7 @@
     <dimen name="aquariumListRadius">15dp</dimen>
     <dimen name="aquariumListPhoto">50dp</dimen>
     <dimen name="aquariumHomeListMargin">14dp</dimen>
-    <dimen name="aquariumHomeListTopMargin">10dp</dimen>
+    <dimen name="aquariumHomeListTopMargin">5dp</dimen>
     <dimen name="aquariumHomeTextMargin">16dp</dimen>
 
     <dimen name="dialogTitle">16dp</dimen>

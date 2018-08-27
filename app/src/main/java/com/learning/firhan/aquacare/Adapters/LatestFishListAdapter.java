@@ -19,11 +19,11 @@ import com.learning.firhan.aquacare.R;
 
 import java.util.ArrayList;
 
-public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHolder> {
+public class LatestFishListAdapter extends RecyclerView.Adapter<LatestFishListAdapter.ViewHolder> {
     private static final String TAG = "FishListAdapter";
     public ArrayList<FishModel> fishModels;
 
-    public FishListAdapter(ArrayList<FishModel> fishModels) {
+    public LatestFishListAdapter(ArrayList<FishModel> fishModels) {
         this.fishModels = fishModels;
     }
 
@@ -38,9 +38,9 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         Log.d(TAG, "onCreateViewHolder: ");
 
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.listview_item_fish, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.listview_item_latest_fish, viewGroup, false);
 
-        ViewHolder viewHolder = new FishListAdapter.ViewHolder(view);
+        ViewHolder viewHolder = new LatestFishListAdapter.ViewHolder(view);
 
         return viewHolder;
     }

@@ -76,4 +76,10 @@ public class FishSQLiteHelper extends SQLiteOpenHelper {
         Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_AQUARIUM_ID+"="+aquariumId+" ORDER BY Id DESC", null);
         return result;
     }
+
+    public Cursor getLatestFishes(int limit){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" ORDER BY Id DESC LIMIT 0,"+limit, null);
+        return result;
+    }
 }

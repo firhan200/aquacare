@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,10 +18,15 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.learning.firhan.aquacare.Adapters.AquariumListAdapter;
+import com.learning.firhan.aquacare.Adapters.FishListAdapter;
+import com.learning.firhan.aquacare.Adapters.LatestFishListAdapter;
 import com.learning.firhan.aquacare.Helpers.AquariumSQLiteHelper;
+import com.learning.firhan.aquacare.Helpers.FishHelper;
+import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Interfaces.IMainActivity;
 import com.learning.firhan.aquacare.MainActivity;
 import com.learning.firhan.aquacare.Models.AquariumModel;
+import com.learning.firhan.aquacare.Models.FishModel;
 import com.learning.firhan.aquacare.R;
 
 import java.util.ArrayList;
@@ -28,14 +34,28 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
+    //SQLite
     AquariumSQLiteHelper aquariumSQLiteHelper;
-    RecyclerView aquariumRecyclerView;
-    RecyclerView.LayoutManager layoutManager;
-    ArrayList<AquariumModel> aquariumModels;
-    IMainActivity iMainActivity;
-    ProgressBar listLoader;
+    FishSQLiteHelper fishSQLiteHelper;
+
+    //helpers
+    FishHelper fishHelper;
+
+    //View
+    public RecyclerView aquariumRecyclerView, latestFishRecyclerView;
+    public ProgressBar aquariumListLoader,latestFishListLoader;
+    public NestedScrollView homeContainer;
     FloatingActionButton addAquariumButton;
+
+    //models
+    ArrayList<AquariumModel> aquariumModels;
+    ArrayList<FishModel> latestFishModels;
+
+    IMainActivity iMainActivity;
     AquariumListAdapter aquariumListAdapter;
+    LatestFishListAdapter latestFishListAdapter;
+
+    //variable
     boolean hasBack = false;
 
     @Override
@@ -56,6 +76,10 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //init db
         aquariumSQLiteHelper = new AquariumSQLiteHelper(getContext());
+        fishSQLiteHelper = new FishSQLiteHelper(getContext());
+
+        //init helpers
+        fishHelper = new FishHelper();
     }
 
     @Nullable
@@ -63,10 +87,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        //init id
-        aquariumRecyclerView = (RecyclerView)view.findViewById(R.id.aquariumRecyclerView);
-        listLoader = (ProgressBar)view.findViewById(R.id.listLoader);
-        addAquariumButton = (FloatingActionButton)view.findViewById(R.id.addAquariumFab);
+        initIds(view);
 
         //set listener
         addAquariumButton.setOnClickListener(new View.OnClickListener() {
@@ -77,53 +98,43 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        populateAquariums();
+        populateAquariumList(false);
+        populateFishList(false);
 
         return view;
     }
 
-    public void populateAquariums(){
-        Log.d(TAG, "populateAquariums: ");
-        //layout manager
-        layoutManager = new LinearLayoutManager(getContext());
+    private void initIds(View view){
+        //init id
+        aquariumRecyclerView = (RecyclerView)view.findViewById(R.id.aquariumRecyclerView);
+        latestFishRecyclerView = (RecyclerView)view.findViewById(R.id.latestFishRecyclerView);
+        aquariumListLoader = (ProgressBar)view.findViewById(R.id.aquariumListLoader);
+        latestFishListLoader = (ProgressBar)view.findViewById(R.id.latestFishListLoader);
+        addAquariumButton = (FloatingActionButton)view.findViewById(R.id.addAquariumFab);
+        homeContainer = (NestedScrollView)view.findViewById(R.id.homeContainer);
+    }
 
-        aquariumRecyclerView.setHasFixedSize(true);
-        aquariumRecyclerView.setLayoutManager(layoutManager);
+    public void populateAquariumList(Boolean isRefreshList){
+        new LoadAquariumTask(isRefreshList).execute();
+    }
 
-        //get data from sqlite
-        aquariumModels = new ArrayList<>();
-        Cursor aquariums = aquariumSQLiteHelper.getAllData();
-        while (aquariums.moveToNext()){
-            AquariumModel aquariumModel = new AquariumModel(0,"", "","","",0,0,0);
-            aquariumModel.setId(aquariums.getInt(0));
-            aquariumModel.setImageUri(aquariums.getString(1));
-            aquariumModel.setImageThumbnailUri(aquariums.getString(2));
-            aquariumModel.setName(aquariums.getString(3));
-            aquariumModel.setDescription(aquariums.getString(4));
-            aquariumModel.setAquariumLength(aquariums.getDouble(5));
-            aquariumModel.setAquariumHeight(aquariums.getDouble(6));
-            aquariumModel.setAquariumWide(aquariums.getDouble(7));
-            aquariumModels.add(aquariumModel);
-        }
-
-        //set adapter
-        aquariumListAdapter = new AquariumListAdapter(aquariumModels, getContext());
-
-        try{
-            aquariumRecyclerView.setAdapter(aquariumListAdapter);
-        }catch (Exception ex){
-            Log.d(TAG, "doInBackground: "+ex.getMessage());
-        }
+    public void populateFishList(Boolean isRefreshList){
+        new LoadLatestFishTask(isRefreshList).execute();
     }
 
     public class LoadAquariumTask extends AsyncTask{
         private static final String TAG = "LoadAquariumTask";
-        
+        private Boolean isRefreshList = false;
+
+        public LoadAquariumTask(Boolean isRefreshList) {
+            this.isRefreshList = isRefreshList;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             Log.d(TAG, "onPreExecute: ");
-            listLoader.setVisibility(View.VISIBLE);
+            aquariumListLoader.setVisibility(View.VISIBLE);
             aquariumRecyclerView.setVisibility(View.GONE);
         }
 
@@ -131,20 +142,26 @@ public class HomeFragment extends Fragment {
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             Log.d(TAG, "onPostExecute: ");
-            listLoader.setVisibility(View.GONE);
+            aquariumListLoader.setVisibility(View.GONE);
             aquariumRecyclerView.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            //layout manager
-            layoutManager = new LinearLayoutManager(getContext());
+            setAquariumList();
 
-            aquariumRecyclerView.setHasFixedSize(true);
-            aquariumRecyclerView.setLayoutManager(layoutManager);
+            return null;
+        }
 
+        private void setAquariumList(){
             //get data from sqlite
-            aquariumModels = new ArrayList<>();
+            if(!isRefreshList){
+                aquariumModels = new ArrayList<>();
+            }else{
+                //clear data
+                aquariumModels.clear();
+            }
+
             Cursor aquariums = aquariumSQLiteHelper.getAllData();
             while (aquariums.moveToNext()){
                 AquariumModel aquariumModel = new AquariumModel(0,"", "","","",0,0,0);
@@ -159,6 +176,22 @@ public class HomeFragment extends Fragment {
                 aquariumModels.add(aquariumModel);
             }
 
+            if(!isRefreshList){
+                //first populate
+                setAquariumRecyclerView(aquariumModels);
+            }else{
+                //only refreshing data
+                aquariumListAdapter.notifyDataSetChanged();
+            }
+        }
+
+        private void setAquariumRecyclerView(ArrayList<AquariumModel> aquariumModels){
+            //layout manager
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+
+            aquariumRecyclerView.setHasFixedSize(true);
+            aquariumRecyclerView.setLayoutManager(layoutManager);
+
             //set adapter
             aquariumListAdapter = new AquariumListAdapter(aquariumModels, getContext());
 
@@ -167,9 +200,84 @@ public class HomeFragment extends Fragment {
             }catch (Exception ex){
                 Log.d(TAG, "doInBackground: "+ex.getMessage());
             }
+        }
+    }
 
+    public class LoadLatestFishTask extends AsyncTask{
+        private static final String TAG = "LoadLatestFishTask";
+        private Boolean isRefreshList = false;
+
+        public LoadLatestFishTask(Boolean isRefreshList) {
+            this.isRefreshList = isRefreshList;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(TAG, "onPreExecute: ");
+            latestFishListLoader.setVisibility(View.VISIBLE);
+            latestFishRecyclerView.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            Log.d(TAG, "onPostExecute: ");
+            latestFishListLoader.setVisibility(View.GONE);
+            latestFishRecyclerView.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            setFishList();
 
             return null;
+        }
+
+        private void setFishList(){
+            //get data from sqlite
+            if(!isRefreshList){
+                latestFishModels = new ArrayList<>();
+            }else{
+                //clear data
+                latestFishModels.clear();
+            }
+
+            Cursor fishes = fishSQLiteHelper.getLatestFishes(10);
+            if(fishes.getCount() > 0){
+                while (fishes.moveToNext()){
+                    FishModel fishModel = fishHelper.convertCursorToModel(fishes);
+                    latestFishModels.add(fishModel);
+                }
+
+                if(!isRefreshList){
+                    //first populate
+                    setLatestFishRecyclerView(latestFishModels);
+                }else{
+                    //only refreshing data
+                    latestFishListAdapter.notifyDataSetChanged();
+                }
+            }else{
+                //no result
+                latestFishListLoader.setVisibility(View.GONE);
+            }
+        }
+
+        private void setLatestFishRecyclerView(ArrayList<FishModel> latestFishModels){
+            //layout manager
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+
+            latestFishRecyclerView.setHasFixedSize(false);
+            latestFishRecyclerView.setLayoutManager(layoutManager);
+
+            //set adapter
+            latestFishListAdapter = new LatestFishListAdapter(latestFishModels);
+
+            try{
+                latestFishRecyclerView.setAdapter(latestFishListAdapter);
+            }catch (Exception ex){
+                Log.d(TAG, "doInBackground: "+ex.getMessage());
+            }
         }
     }
 }

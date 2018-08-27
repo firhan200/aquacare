@@ -30,6 +30,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.learning.firhan.aquacare.Adapters.FishListAdapter;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Fragments.CameraOrGalleryDialogFragment;
+import com.learning.firhan.aquacare.Helpers.FishHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Helpers.StorageHelper;
 import com.learning.firhan.aquacare.Models.AquariumModel;
@@ -40,13 +41,19 @@ import java.util.ArrayList;
 
 public class AquariumDetailActivity extends AppCompatActivity {
     private static final String TAG = "AquariumDetailActivity";
+    //sqlite
     public FishSQLiteHelper fishSQLiteHelper;
+
+    //helpers
+    FishHelper fishHelper;
+    StorageHelper storageHelper;
+
+    //View
     LayoutInflater layoutInflater;
     AquariumModel aquariumModel;
     Toolbar aquariumDetailToolbar;
     ImageView aquariumPhoto;
     FloatingActionButton addFishButton;
-    StorageHelper storageHelper;
     public RecyclerView fishListRecyclerView;
     public FishListAdapter fishListAdapter;
     public ArrayList<FishModel> fishModels;
@@ -66,6 +73,7 @@ public class AquariumDetailActivity extends AppCompatActivity {
         addFishButton.invalidate();
 
         storageHelper = new StorageHelper();
+        fishHelper = new FishHelper();
         layoutInflater = getLayoutInflater();
         fishSQLiteHelper = new FishSQLiteHelper(getApplicationContext());
 
@@ -210,16 +218,8 @@ public class AquariumDetailActivity extends AppCompatActivity {
             //sqlite query
             Cursor fishes = fishSQLiteHelper.getAllDataByAquariumId(aquariumModel.getId());
             while(fishes.moveToNext()){
-                fishModels.add(new FishModel(
-                        fishes.getInt(0),
-                        fishes.getInt(1),
-                        fishes.getString(2),
-                        fishes.getString(3),
-                        fishes.getString(4),
-                        fishes.getString(5),
-                        fishes.getString(6),
-                        fishes.getString(7)
-                ));
+                FishModel fishModel = fishHelper.convertCursorToModel(fishes);
+                fishModels.add(fishModel);
 
                 Log.d(TAG, "Fish Name: "+fishes.getString(5));
             }

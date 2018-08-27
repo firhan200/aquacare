@@ -51,14 +51,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //init id
-        customToolbar = (Toolbar)findViewById(R.id.customToolbar);
-        customToolbarLayout = (AppBarLayout)findViewById(R.id.customToolbarLayout);
-        frameContainer = (RelativeLayout)findViewById(R.id.frameContainer);
+        initIds();
 
-        //set toolbar
-        customToolbarLayout.bringToFront();
-        setSupportActionBar(customToolbar);
+        setCustomToolbar();
 
         storageHelper = new StorageHelper();
         layoutInflater = getLayoutInflater();
@@ -66,6 +61,19 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
         //set default fragment
         setFragment(getString(R.string.fragment_home), false, null);
+    }
+
+    private void setCustomToolbar(){
+        //set toolbar
+        customToolbarLayout.bringToFront();
+        setSupportActionBar(customToolbar);
+    }
+
+    private void initIds(){
+        //init id
+        customToolbar = (Toolbar)findViewById(R.id.customToolbar);
+        customToolbarLayout = (AppBarLayout)findViewById(R.id.customToolbarLayout);
+        frameContainer = (RelativeLayout)findViewById(R.id.frameContainer);
     }
 
     public void setFragment(String fragmentTag, boolean addToBackStack, Bundle bundle){
@@ -165,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             }
         }else if(requestCode==ActivityResultsCode.ADD_AQUARIUM && resultCode==Activity.RESULT_OK){
             //reload recycler view
-            homeFragment.populateAquariums();
+            homeFragment.populateAquariumList(true);
         }
     }
 }
