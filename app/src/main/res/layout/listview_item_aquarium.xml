@@ -2,9 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:background="@drawable/shapes_aquarium_list"
-    android:layout_marginTop="-2dp"
-    android:layout_marginLeft="-1dp"
-    android:layout_marginRight="-1dp">
+    android:layout_marginTop="@dimen/aquariumHomeListTopMargin"
+    android:layout_marginBottom="@dimen/aquariumHomeListTopMargin"
+    android:layout_marginLeft="@dimen/aquariumHomeListMargin"
+    android:layout_marginRight="@dimen/aquariumHomeListMargin">
 
     <ImageView
         android:id="@+id/listItemAquariumPhoto"

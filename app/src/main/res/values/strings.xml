@@ -25,5 +25,8 @@
     <!-- create aquarium -->
     <string name="dialog_fish_title">Create Fish</string>
     <string name="dialog_fish_message">Choose image for Fish.</string>
+    <string name="hint_fish_name">Fish Name</string>
+    <string name="hint_fish_type">Fish Type</string>
+    <string name="hint_purchase_date">Purchase Date</string>
 
 </resources>

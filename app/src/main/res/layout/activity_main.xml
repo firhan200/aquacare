@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/appBackground">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/customToolbarLayout"
@@ -17,8 +18,10 @@
             android:id="@+id/customToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@null"
-            app:titleTextColor="@android:color/white">
+            android:background="@drawable/shapes_toolbar"
+            android:layout_marginTop="@dimen/customToolbarMinus"
+            android:layout_marginRight="@dimen/customToolbarMinus"
+            android:layout_marginLeft="@dimen/customToolbarMinus">
 
         </android.support.v7.widget.Toolbar>
 

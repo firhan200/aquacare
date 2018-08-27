@@ -33,10 +33,11 @@
         <activity
             android:name=".AquariumDetailActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar.White" />
         <activity android:name=".AddFishActivity"
             android:parentActivityName=".AquariumDetailActivity"
-            android:label="Add Fish"></activity>
+            android:label="Add Fish"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

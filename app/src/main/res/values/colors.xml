@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3fabb5</color>
-    <color name="colorPrimaryDark">#30929f</color>
+    <color name="appBackground">#f8f8f8</color>
+    <color name="colorPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#737373</color>
+    <color name="colorSecondary">#3fabb5</color>
+    <color name="colorSecondaryDark">#30929f</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="colorToolbarBorder">#e6e6e6</color>
     <color name="buttonTextColor">#FFFFFF</color>
 
     <!-- key value label -->
     <color name="labelTextColor">#000000</color>
 
-    <color name="aquariumListBackground">#f2f2f2</color>
+    <color name="aquariumListBackground">#ffffff</color>
     <color name="aquariumListStroke">#e6e6e6</color>
 
     <color name="aquariumDetailName">#e4f5f7</color>

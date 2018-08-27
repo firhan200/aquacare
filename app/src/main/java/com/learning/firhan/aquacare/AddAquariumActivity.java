@@ -23,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.learning.firhan.aquacare.Helpers.AquariumSQLiteHelper;
+import com.learning.firhan.aquacare.Helpers.CommonHelper;
 import com.learning.firhan.aquacare.Models.AquariumModel;
 
 import java.io.File;
@@ -43,6 +44,7 @@ public class AddAquariumActivity extends AppCompatActivity {
     public Button submitButton;
     public ProgressBar loader;
     double deviceWidth;
+    CommonHelper commonHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class AddAquariumActivity extends AppCompatActivity {
 
         //init db
         aquariumSQLiteHelper = new AquariumSQLiteHelper(this);
+        commonHelper = new CommonHelper();
 
         //init id
         aquariumPhoto = (ImageView)findViewById(R.id.aquariumPhoto);
@@ -95,7 +98,7 @@ public class AddAquariumActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    hideKeyboard(v);
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
                 }
             }
         });
@@ -104,7 +107,7 @@ public class AddAquariumActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    hideKeyboard(v);
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
                 }
             }
         });
@@ -113,7 +116,7 @@ public class AddAquariumActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    hideKeyboard(v);
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
                 }
             }
         });
@@ -122,7 +125,7 @@ public class AddAquariumActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    hideKeyboard(v);
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
                 }
             }
         });
@@ -131,7 +134,7 @@ public class AddAquariumActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    hideKeyboard(v);
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
                 }
             }
         });
@@ -240,11 +243,6 @@ public class AddAquariumActivity extends AppCompatActivity {
         aquariumPhoto.setImageBitmap(aquariumBitmap);
     }
 
-    public void hideKeyboard(View view){
-        InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
     public void showSnackbar(View v, String message){
         Snackbar.make(v, message, Snackbar.LENGTH_SHORT).show();
     }
@@ -300,27 +298,21 @@ public class AddAquariumActivity extends AppCompatActivity {
 
             //generate filename
             String uuid = UUID.randomUUID().toString();
-            String filename = "IMG-"+uuid+".jpg";
-            String thumbnailFilename = "Thumbail-IMG-"+uuid+".jpg";
+            String filename = commonHelper.generateFileName("IMG-", ".jpg");
+            String thumbnailFilename = "Thumbnail-"+filename;
 
             //save image
             File file = new File(directory, filename);
             File fileThumnbail = new File(directory, thumbnailFilename);
             try {
                 //resize bitmap
-                Bitmap resizedBitmap = getResizedBitmap(aquariumBitmap, 600);
+                Bitmap resizedBitmap = commonHelper.resizeBitmap(aquariumBitmap, 600);
                 Bitmap resizedThumbnailBitmap = resizedBitmap;
 
-                FileOutputStream out = new FileOutputStream(file);
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                out.flush();
-                out.close();
-
-                //save thumbnail
-                FileOutputStream outThumbnail = new FileOutputStream(fileThumnbail);
-                resizedThumbnailBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outThumbnail);
-                outThumbnail.flush();
-                outThumbnail.close();
+                //save main image
+                commonHelper.saveImageJPEG(file, resizedBitmap);
+                //save thumnail image
+                commonHelper.saveImageJPEG(fileThumnbail, resizedThumbnailBitmap);
 
                 imageUri = directory+"/"+filename;
                 imageThumbnailUri = directory+"/"+thumbnailFilename;
@@ -337,25 +329,6 @@ public class AddAquariumActivity extends AppCompatActivity {
                 isSuccess = true;
             }
             return null;
-        }
-
-        public Bitmap getResizedBitmap(Bitmap bm, int maxWidth) {
-            int width = bm.getWidth();
-            int height = bm.getHeight();
-
-            //convert to fit screen
-            int imageWidth = maxWidth;
-            int imageHeight = (int)Math.ceil((imageWidth * height) / width);
-
-            // CREATE A MATRIX FOR THE MANIPULATION
-            Matrix matrix = new Matrix();
-            // RESIZE THE BIT MAP
-            matrix.postScale(imageWidth, imageHeight);
-
-            // "RECREATE" THE NEW BITMAP
-            Bitmap resizedBitmap = Bitmap.createScaledBitmap(bm, imageWidth, imageHeight, false);
-            //bm.recycle();
-            return resizedBitmap;
         }
     }
 }

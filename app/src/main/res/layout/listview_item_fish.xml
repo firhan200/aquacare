@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@drawable/shapes_fish_list"
+    android:layout_margin="5dp"
+    android:paddingBottom="5dp">
+
+    <ImageView
+        android:id="@+id/listItemfishPhoto"
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_height="100dp"/>
+
+    <LinearLayout
+        android:layout_below="@id/listItemfishPhoto"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+        <TextView
+            android:id="@+id/listItemFishName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/fishListNameSize"
+            android:textColor="@android:color/black"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/listItemFishType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/fishListTypeSize"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+    </LinearLayout>
+
+</RelativeLayout>
