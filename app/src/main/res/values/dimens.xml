@@ -4,6 +4,9 @@
     <dimen name="dialogListTextSize">14sp</dimen>
     <dimen name="dialogListItemPaddng">10dp</dimen>
 
+    <dimen name="bottomAppPadding">30dp</dimen>
+    <dimen name="submitButtonMargin">10dp</dimen>
+
     <!-- key value label -->
     <dimen name="labelContainerPadding">10dp</dimen>
     <dimen name="labelSidePadding">5dp</dimen>

@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +31,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.learning.firhan.aquacare.Adapters.FishListAdapter;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Fragments.CameraOrGalleryDialogFragment;
+import com.learning.firhan.aquacare.Fragments.HomeFragment;
 import com.learning.firhan.aquacare.Helpers.FishHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Helpers.StorageHelper;
@@ -58,6 +60,9 @@ public class AquariumDetailActivity extends AppCompatActivity {
     public FishListAdapter fishListAdapter;
     public ArrayList<FishModel> fishModels;
     TextView detailAquariumName, detailAquariumDescription, detailLength, detailHeight, detailWide;
+
+    //globar variable
+    private Boolean isNewFish = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +178,7 @@ public class AquariumDetailActivity extends AppCompatActivity {
             }
         }else if(requestCode==ActivityResultsCode.ADD_FISH && resultCode==Activity.RESULT_OK){
             //repopulate fish
+            isNewFish = true;
             new PopulateFishTask(true).execute();
         }
     }
@@ -190,6 +196,29 @@ public class AquariumDetailActivity extends AppCompatActivity {
 
         addFistIntent.putExtra("aquariumId", aquariumModel.getId());
         startActivityForResult(addFistIntent, ActivityResultsCode.ADD_FISH);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishWithResult();
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected: "+item.getItemId()+" = "+android.R.id.home);
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finishWithResult();
+                break;
+        }
+        return true;
+    }
+
+    private void finishWithResult(){
+        Intent mainIntent = new Intent(this, MainActivity.class);
+        setResult(ActivityResultsCode.REFRESH_LATEST_FISH, mainIntent);
+        finish();
     }
 
     class PopulateFishTask extends AsyncTask{

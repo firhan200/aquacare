@@ -207,17 +207,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
     }
 
     private void setImage(Bitmap bitmap){
-        double imageOriginalHeight = bitmap.getHeight();
-        double imageOriginalWidth = bitmap.getWidth();
-
-        RequestOptions requestOptions = new RequestOptions().circleCrop();
-
-        //convert to fit screen
-        int imageWidth = (int)Math.ceil(deviceWidth/2);
-        int imageHeight = imageWidth;
-
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageWidth, imageHeight);
-        fishPhoto.setLayoutParams(layoutParams);
+        RequestOptions requestOptions = new RequestOptions().centerCrop();
 
         Glide
                 .with(getApplicationContext())

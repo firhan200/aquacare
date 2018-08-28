@@ -8,4 +8,7 @@ public class ActivityResultsCode {
     public static final int ADD_AQUARIUM = 1;
 
     public static final int ADD_FISH = 2;
+
+    public static final int AQUARIUM_DETAIL = 3;
+    public static final int REFRESH_LATEST_FISH = 4;
 }

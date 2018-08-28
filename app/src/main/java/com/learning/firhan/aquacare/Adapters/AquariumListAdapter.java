@@ -1,5 +1,6 @@
 package com.learning.firhan.aquacare.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.learning.firhan.aquacare.AquariumDetailActivity;
+import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Interfaces.IMainActivity;
 import com.learning.firhan.aquacare.MainActivity;
 import com.learning.firhan.aquacare.Models.AquariumModel;
@@ -86,7 +88,7 @@ public class AquariumListAdapter extends RecyclerView.Adapter<AquariumListAdapte
                 //start aquarium detail activity
                 Intent aquariumDetailIntent = new Intent(context, AquariumDetailActivity.class);
                 aquariumDetailIntent.putExtra("aquarium", aquariumModel);
-                context.startActivity(aquariumDetailIntent);
+                ((Activity)context).startActivityForResult(aquariumDetailIntent, ActivityResultsCode.AQUARIUM_DETAIL);
             }
         });
     }

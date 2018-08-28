@@ -174,6 +174,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         }else if(requestCode==ActivityResultsCode.ADD_AQUARIUM && resultCode==Activity.RESULT_OK){
             //reload recycler view
             homeFragment.populateAquariumList(true);
+        }else if(requestCode==ActivityResultsCode.AQUARIUM_DETAIL){
+            if(resultCode==ActivityResultsCode.REFRESH_LATEST_FISH){
+                //repopulate latest fish
+                homeFragment.populateFishList(true);
+            }
         }
     }
 }

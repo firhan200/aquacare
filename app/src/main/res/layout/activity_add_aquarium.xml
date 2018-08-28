@@ -7,6 +7,7 @@
     android:id="@+id/addAquariumMainLayout"
     android:focusableInTouchMode="true"
     android:clickable="true"
+    android:background="@android:color/white"
     tools:context=".AddAquariumActivity">
 
     <android.support.v4.widget.NestedScrollView
@@ -19,13 +20,14 @@
         android:orientation="vertical"
         android:clickable="true"
         android:focusableInTouchMode="true"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:paddingBottom="@dimen/bottomAppPadding">
 
         <ImageView
             android:id="@+id/aquariumPhoto"
             android:layout_width="match_parent"
             android:background="@android:color/black"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:scaleType="fitXY"
             android:layout_gravity="center"/>
 
@@ -168,6 +170,7 @@
             android:textColor="@color/buttonTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/submitButtonMargin"
             android:background="@color/colorSecondary"/>
 
         <ProgressBar

@@ -22,6 +22,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.learning.firhan.aquacare.Helpers.AquariumSQLiteHelper;
 import com.learning.firhan.aquacare.Helpers.CommonHelper;
 import com.learning.firhan.aquacare.Models.AquariumModel;
@@ -56,62 +58,23 @@ public class AddAquariumActivity extends AppCompatActivity {
         aquariumSQLiteHelper = new AquariumSQLiteHelper(this);
         commonHelper = new CommonHelper();
 
-        //init id
-        aquariumPhoto = (ImageView)findViewById(R.id.aquariumPhoto);
-        addAquariumMainLayout = (RelativeLayout)findViewById(R.id.addAquariumMainLayout);
-        aquariumName = (EditText)findViewById(R.id.aquariumName);
-        aquariumDescription = (EditText)findViewById(R.id.aquariumDescription);
-        aquariumHeight = (EditText)findViewById(R.id.aquariumHeight);
-        aquariumLength = (EditText)findViewById(R.id.aquariumLength);
-        aquariumWide = (EditText)findViewById(R.id.aquariumWide);
-        submitButton = (Button)findViewById(R.id.addAquariumSubmitButton);
-        loader = (ProgressBar)findViewById(R.id.loader);
+        initIds();
 
-        //get parent width
-        addAquariumMainLayout.post(new Runnable() {
+        setAquariumPhoto();
+
+        setAquariumNameListener();
+        setAquariumDescriptionListener();
+        setAquariumMeasuresListener();
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                deviceWidth = addAquariumMainLayout.getWidth();
-
-                //get intent extras
-                if(getIntent().getExtras()!=null){
-                    if(getIntent().getExtras().get("image")!=null){
-                        aquariumBitmap = (Bitmap) getIntent().getExtras().get("image");
-                        setImage(aquariumBitmap);
-                    }else if(getIntent().getExtras().get("imageUri")!=null){
-                        String imageUri = getIntent().getExtras().getString("imageUri");
-                        Uri uri = Uri.parse(imageUri);
-                        aquariumBitmap = null;
-                        try {
-                            aquariumBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                            setImage(aquariumBitmap);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+            public void onClick(View v) {
+                saveAquarium(v);
             }
         });
+    }
 
-        //set listener
-        aquariumName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus){
-                    commonHelper.hideKeyboard(getApplicationContext(), v);
-                }
-            }
-        });
-
-        aquariumDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus){
-                    commonHelper.hideKeyboard(getApplicationContext(), v);
-                }
-            }
-        });
-
+    private void setAquariumMeasuresListener(){
         aquariumLength.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -138,13 +101,70 @@ public class AddAquariumActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
+    private void setAquariumDescriptionListener(){
+        aquariumDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                saveAquarium(v);
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
+                }
             }
         });
+    }
+
+    private void setAquariumNameListener(){
+        //set listener
+        aquariumName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
+                }
+            }
+        });
+    }
+
+    private void setAquariumPhoto(){
+        //get parent width
+        addAquariumMainLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                deviceWidth = addAquariumMainLayout.getWidth();
+
+                //get intent extras
+                if(getIntent().getExtras()!=null){
+                    if(getIntent().getExtras().get("image")!=null){
+                        aquariumBitmap = (Bitmap) getIntent().getExtras().get("image");
+                        setImage(aquariumBitmap);
+                    }else if(getIntent().getExtras().get("imageUri")!=null){
+                        String imageUri = getIntent().getExtras().getString("imageUri");
+                        Uri uri = Uri.parse(imageUri);
+                        aquariumBitmap = null;
+                        try {
+                            aquariumBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                            setImage(aquariumBitmap);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void initIds(){
+        //init id
+        aquariumPhoto = (ImageView)findViewById(R.id.aquariumPhoto);
+        addAquariumMainLayout = (RelativeLayout)findViewById(R.id.addAquariumMainLayout);
+        aquariumName = (EditText)findViewById(R.id.aquariumName);
+        aquariumDescription = (EditText)findViewById(R.id.aquariumDescription);
+        aquariumHeight = (EditText)findViewById(R.id.aquariumHeight);
+        aquariumLength = (EditText)findViewById(R.id.aquariumLength);
+        aquariumWide = (EditText)findViewById(R.id.aquariumWide);
+        submitButton = (Button)findViewById(R.id.addAquariumSubmitButton);
+        loader = (ProgressBar)findViewById(R.id.loader);
     }
 
     private void saveAquarium(View view){
@@ -231,16 +251,13 @@ public class AddAquariumActivity extends AppCompatActivity {
     }
 
     private void setImage(Bitmap aquariumBitmap){
-        double imageOriginalHeight = aquariumBitmap.getHeight();
-        double imageOriginalWidth = aquariumBitmap.getWidth();
+        RequestOptions requestOptions = new RequestOptions().centerCrop();
 
-        //convert to fit screen
-        int imageWidth = (int)Math.ceil(deviceWidth);
-        int imageHeight = (int)Math.ceil((imageWidth * imageOriginalHeight) / imageOriginalWidth);
-
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageWidth, imageHeight);
-        aquariumPhoto.setLayoutParams(layoutParams);
-        aquariumPhoto.setImageBitmap(aquariumBitmap);
+        Glide
+                .with(getApplicationContext())
+                .load(aquariumBitmap)
+                .apply(requestOptions)
+                .into(aquariumPhoto);
     }
 
     public void showSnackbar(View v, String message){

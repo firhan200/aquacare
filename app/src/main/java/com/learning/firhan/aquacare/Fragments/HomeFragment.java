@@ -15,7 +15,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.learning.firhan.aquacare.Adapters.AquariumListAdapter;
 import com.learning.firhan.aquacare.Adapters.FishListAdapter;
@@ -45,6 +47,8 @@ public class HomeFragment extends Fragment {
     public RecyclerView aquariumRecyclerView, latestFishRecyclerView;
     public ProgressBar aquariumListLoader,latestFishListLoader;
     public NestedScrollView homeContainer;
+    public TextView aquariumTitle, latestFishTitle;
+    public LinearLayout submitAquariumLabel;
     FloatingActionButton addAquariumButton;
 
     //models
@@ -89,12 +93,13 @@ public class HomeFragment extends Fragment {
 
         initIds(view);
 
+        setSubmitAquariumLabelListener();
+
         //set listener
         addAquariumButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CameraOrGalleryDialogFragment cameraOrGalleryDialogFragment = new CameraOrGalleryDialogFragment();
-                cameraOrGalleryDialogFragment.show(getActivity().getSupportFragmentManager(), "CameraOrGallery");
+                showAddDialog();
             }
         });
 
@@ -102,6 +107,11 @@ public class HomeFragment extends Fragment {
         populateFishList(false);
 
         return view;
+    }
+
+    private void showAddDialog(){
+        CameraOrGalleryDialogFragment cameraOrGalleryDialogFragment = new CameraOrGalleryDialogFragment();
+        cameraOrGalleryDialogFragment.show(getActivity().getSupportFragmentManager(), "CameraOrGallery");
     }
 
     private void initIds(View view){
@@ -112,6 +122,18 @@ public class HomeFragment extends Fragment {
         latestFishListLoader = (ProgressBar)view.findViewById(R.id.latestFishListLoader);
         addAquariumButton = (FloatingActionButton)view.findViewById(R.id.addAquariumFab);
         homeContainer = (NestedScrollView)view.findViewById(R.id.homeContainer);
+        latestFishTitle = (TextView)view.findViewById(R.id.latestFishTitle);
+        aquariumTitle = (TextView)view.findViewById(R.id.aquariumTitle);
+        submitAquariumLabel = (LinearLayout) view.findViewById(R.id.submitAquariumLabel);
+    }
+
+    private void setSubmitAquariumLabelListener(){
+        submitAquariumLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAddDialog();
+            }
+        });
     }
 
     public void populateAquariumList(Boolean isRefreshList){
@@ -136,6 +158,8 @@ public class HomeFragment extends Fragment {
             Log.d(TAG, "onPreExecute: ");
             aquariumListLoader.setVisibility(View.VISIBLE);
             aquariumRecyclerView.setVisibility(View.GONE);
+            submitAquariumLabel.setVisibility(View.GONE);
+            aquariumTitle.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -143,7 +167,13 @@ public class HomeFragment extends Fragment {
             super.onPostExecute(o);
             Log.d(TAG, "onPostExecute: ");
             aquariumListLoader.setVisibility(View.GONE);
-            aquariumRecyclerView.setVisibility(View.VISIBLE);
+            if(aquariumModels.size() > 0){
+                aquariumRecyclerView.setVisibility(View.VISIBLE);
+            }else{
+                //empty
+                aquariumTitle.setVisibility(View.GONE);
+                submitAquariumLabel.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -216,6 +246,7 @@ public class HomeFragment extends Fragment {
             super.onPreExecute();
             Log.d(TAG, "onPreExecute: ");
             latestFishListLoader.setVisibility(View.VISIBLE);
+            latestFishTitle.setVisibility(View.VISIBLE);
             latestFishRecyclerView.setVisibility(View.GONE);
         }
 
@@ -224,7 +255,13 @@ public class HomeFragment extends Fragment {
             super.onPostExecute(o);
             Log.d(TAG, "onPostExecute: ");
             latestFishListLoader.setVisibility(View.GONE);
-            latestFishRecyclerView.setVisibility(View.VISIBLE);
+            if(latestFishModels.size() > 0){
+                latestFishRecyclerView.setVisibility(View.VISIBLE);
+            }else{
+                //empty
+                latestFishTitle.setVisibility(View.GONE);
+            }
+
         }
 
         @Override
@@ -258,6 +295,8 @@ public class HomeFragment extends Fragment {
                     latestFishListAdapter.notifyDataSetChanged();
                 }
             }else{
+                //first init populate
+                setLatestFishRecyclerView(latestFishModels);
                 //no result
                 latestFishListLoader.setVisibility(View.GONE);
             }

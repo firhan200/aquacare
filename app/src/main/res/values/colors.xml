@@ -7,6 +7,8 @@
     <color name="colorSecondaryDark">#30929f</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="emptyColor">#C8C1BE</color>
+
     <color name="colorToolbarBorder">#e6e6e6</color>
     <color name="buttonTextColor">#FFFFFF</color>
 

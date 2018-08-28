@@ -4,6 +4,26 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/submitAquariumLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_grey"/>
+
+        <TextView
+            android:text="Submit your aquarium here"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/emptyColor"/>
+    </LinearLayout>
+
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/homeContainer"
         android:layout_width="match_parent"
@@ -16,6 +36,7 @@
             android:paddingTop="10dp">
 
             <TextView
+                android:id="@+id/latestFishTitle"
                 android:text="Latest Fish"
                 android:layout_marginLeft="@dimen/aquariumHomeTextMargin"
                 android:layout_width="wrap_content"
@@ -35,6 +56,7 @@
                 android:paddingLeft="10dp"/>
 
             <TextView
+                android:id="@+id/aquariumTitle"
                 android:text="Aquarium"
                 android:layout_marginLeft="@dimen/aquariumHomeTextMargin"
                 android:layout_width="wrap_content"
@@ -50,7 +72,8 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/aquariumRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/bottomAppPadding"/>
 
         </LinearLayout>
 
