@@ -223,7 +223,7 @@ public class HomeFragment extends Fragment {
             aquariumRecyclerView.setLayoutManager(layoutManager);
 
             //set adapter
-            aquariumListAdapter = new AquariumListAdapter(aquariumModels, getContext());
+            aquariumListAdapter = new AquariumListAdapter(aquariumModels, getContext(), HomeFragment.this);
 
             try{
                 aquariumRecyclerView.setAdapter(aquariumListAdapter);

@@ -71,6 +71,11 @@ public class FishSQLiteHelper extends SQLiteOpenHelper {
         return deletedRowsId;
     }
 
+    public int deleteFishByAquariumId(int aquariumId){
+        int deletedRowsId = sqLiteDatabase.delete(TABLE_NAME, COL_AQUARIUM_ID+"="+aquariumId, null);
+        return deletedRowsId;
+    }
+
     public Cursor getAllDataByAquariumId(int aquariumId){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_AQUARIUM_ID+"="+aquariumId+" ORDER BY Id DESC", null);

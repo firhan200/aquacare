@@ -5,10 +5,20 @@
     android:layout_margin="5dp"
     android:paddingBottom="5dp">
 
+    <ImageButton
+        android:id="@+id/listItemFishMenu"
+        android:layout_gravity="end"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_more_horiz"
+        android:background="@null"
+        android:layout_marginEnd="5dp"/>
+
     <ImageView
         android:id="@+id/listItemfishPhoto"
         android:layout_width="match_parent"
-        android:layout_marginTop="20dp"
+        android:layout_below="@id/listItemFishMenu"
         android:layout_height="100dp"/>
 
     <LinearLayout

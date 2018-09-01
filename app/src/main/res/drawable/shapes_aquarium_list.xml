@@ -4,11 +4,5 @@
 
     <stroke android:color="@color/aquariumListStroke" android:width="1dp"/>
 
-    <padding
-        android:right="@dimen/aquariumListSidePadding"
-        android:bottom="@dimen/aquariumListTopPadding"
-        android:left="@dimen/aquariumListSidePadding"
-        android:top="@dimen/aquariumListTopPadding"/>
-
     <corners android:radius="15dp"></corners>
 </shape>

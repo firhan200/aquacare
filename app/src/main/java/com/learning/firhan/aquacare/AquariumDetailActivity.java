@@ -86,7 +86,7 @@ public class AquariumDetailActivity extends AppCompatActivity {
 
         populateAquariumDetail();
 
-        new PopulateFishTask(false).execute();
+        populateFish(false);
     }
 
     private void setAddFishButtonListener(){
@@ -179,7 +179,7 @@ public class AquariumDetailActivity extends AppCompatActivity {
         }else if(requestCode==ActivityResultsCode.ADD_FISH && resultCode==Activity.RESULT_OK){
             //repopulate fish
             isNewFish = true;
-            new PopulateFishTask(true).execute();
+            populateFish(true);
         }
     }
 
@@ -221,6 +221,10 @@ public class AquariumDetailActivity extends AppCompatActivity {
         finish();
     }
 
+    public void populateFish(Boolean isRefreshing){
+        new PopulateFishTask(isRefreshing).execute();
+    }
+
     class PopulateFishTask extends AsyncTask{
         private static final String TAG = "PopulateFishTask";
         private Boolean isRefreshList = false;
@@ -252,14 +256,6 @@ public class AquariumDetailActivity extends AppCompatActivity {
 
                 Log.d(TAG, "Fish Name: "+fishes.getString(5));
             }
-
-            if(!isRefreshList){
-                //first populate
-                setFishRecyclerView(fishModels);
-            }else{
-                fishListAdapter.notifyDataSetChanged();
-            }
-
         }
 
         private void setFishRecyclerView(ArrayList<FishModel> fishModels){
@@ -269,11 +265,21 @@ public class AquariumDetailActivity extends AppCompatActivity {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3);
 
             //set adapter
-            fishListAdapter = new FishListAdapter(fishModels);
+            fishListAdapter = new FishListAdapter(fishModels, AquariumDetailActivity.this);
 
             fishListRecyclerView.setHasFixedSize(false);
             fishListRecyclerView.setLayoutManager(gridLayoutManager);
             fishListRecyclerView.setAdapter(fishListAdapter);
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            if(!isRefreshList){
+                //first populate
+                setFishRecyclerView(fishModels);
+            }else{
+                fishListAdapter.notifyDataSetChanged();
+            }
         }
     }
 }
