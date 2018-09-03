@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.learning.firhan.aquacare.AddAquariumActivity;
 import com.learning.firhan.aquacare.AquariumDetailActivity;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Fragments.HomeFragment;
@@ -105,21 +106,25 @@ public class AquariumListAdapter extends RecyclerView.Adapter<AquariumListAdapte
                 PopupMenu popupMenu = new PopupMenu(context, v);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_aquarium, popupMenu.getMenu());
                 popupMenu.show();
-                setPopUpMenuOnClickListener(aquariumModel.getName(), aquariumModel.getId(), popupMenu);
+                setPopUpMenuOnClickListener(aquariumModel, popupMenu);
             }
         });
     }
 
-    private void setPopUpMenuOnClickListener(final String aquariumName, final int aquariumId, PopupMenu popupMenu){
+    private void setPopUpMenuOnClickListener(final AquariumModel aquariumModel,PopupMenu popupMenu){
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()){
                     case R.id.aquariumEditMenu:
+                        //Goto Edit Aquarium
+                        Intent intent = new Intent(context, AddAquariumActivity.class);
+                        intent.putExtra("aquariumModel", aquariumModel);
+                        ((Activity)context).startActivityForResult(intent, ActivityResultsCode.EDIT_AQUARIUM);
                         break;
                     case R.id.aquariumDeleteMenu:
-                        String messageText = "Delete "+aquariumName+"? (All fish inside this aquarium will also be deleted)";
-                        showDeleteDialog("Delete Anyway", "Cancel", messageText, aquariumId);
+                        String messageText = "Delete "+aquariumModel.getName()+"? (All fish inside this aquarium will also be deleted)";
+                        showDeleteDialog("Delete Anyway", "Cancel", messageText, aquariumModel.getId());
                         break;
                 }
                 return false;

@@ -1,7 +1,9 @@
 package com.learning.firhan.aquacare.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -22,7 +24,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.learning.firhan.aquacare.AddAquariumActivity;
+import com.learning.firhan.aquacare.AddFishActivity;
 import com.learning.firhan.aquacare.AquariumDetailActivity;
+import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Helpers.CommonHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Models.FishModel;
@@ -103,21 +108,25 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
                 PopupMenu popupMenu = new PopupMenu(context, v);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_aquarium, popupMenu.getMenu());
                 popupMenu.show();
-                setPopUpMenuOnClickListener(fishModel.getName(), fishModel.getId(), popupMenu);
+                setPopUpMenuOnClickListener(fishModel, popupMenu);
             }
         });
     }
 
-    private void setPopUpMenuOnClickListener(final String fishName, final int fishId, PopupMenu popupMenu){
+    private void setPopUpMenuOnClickListener(final FishModel fishModel, PopupMenu popupMenu){
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()){
                     case R.id.aquariumEditMenu:
+                        //Goto Edit Fish
+                        Intent intent = new Intent(context, AddFishActivity.class);
+                        intent.putExtra("fishModel", fishModel);
+                        ((Activity)context).startActivityForResult(intent, ActivityResultsCode.EDIT_FISH);
                         break;
                     case R.id.aquariumDeleteMenu:
-                        String messageText = "Delete "+fishName+"?";
-                        showDeleteDialog("Yes", "Cancel", messageText, fishId);
+                        String messageText = "Delete "+fishModel.getName()+"?";
+                        showDeleteDialog("Yes", "Cancel", messageText, fishModel.getId());
                         break;
                 }
                 return false;

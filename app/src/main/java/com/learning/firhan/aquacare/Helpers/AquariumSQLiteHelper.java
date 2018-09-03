@@ -65,6 +65,19 @@ public class AquariumSQLiteHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
+    public long updateData(AquariumModel model){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_IMAGE_URI, model.getImageUri());
+        contentValues.put(COL_IMAGE_THUMBNAIL_URI, model.getImageUri());
+        contentValues.put(COL_NAME, model.getName());
+        contentValues.put(COL_DESCRIPTION, model.getDescription());
+        contentValues.put(COL_LENGTH, model.getAquariumLength());
+        contentValues.put(COL_HEIGHT, model.getAquariumHeight());
+        contentValues.put(COL_WIDE, model.getAquariumWide());
+        long newRowId = sqLiteDatabase.update(TABLE_NAME, contentValues, COL_ID+"="+model.getId(), null);
+        return newRowId;
+    }
+
     public int deleteData(int id){
         int deletedRowsId = sqLiteDatabase.delete(TABLE_NAME, COL_ID+"="+id, null);
         return deletedRowsId;
@@ -73,6 +86,28 @@ public class AquariumSQLiteHelper extends SQLiteOpenHelper {
     public Cursor getAllData(){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" ORDER BY Id DESC", null);
+        //db.close();
         return result;
+    }
+
+    public AquariumModel getAquariumById(int aquariumId){
+        AquariumHelper aquariumHelper = new AquariumHelper();
+
+        //init model
+        AquariumModel aquariumModel = null;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_ID+"="+aquariumId, null);
+
+        if(result.getCount() > 0){
+            //not null
+            while(result.moveToNext()){
+                aquariumModel = aquariumHelper.convertCursorToModel(result);
+            }
+        }
+
+        //db.close();
+
+        return aquariumModel;
     }
 }

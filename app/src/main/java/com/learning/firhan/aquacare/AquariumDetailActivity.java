@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +33,7 @@ import com.learning.firhan.aquacare.Adapters.FishListAdapter;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Fragments.CameraOrGalleryDialogFragment;
 import com.learning.firhan.aquacare.Fragments.HomeFragment;
+import com.learning.firhan.aquacare.Helpers.AquariumSQLiteHelper;
 import com.learning.firhan.aquacare.Helpers.FishHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Helpers.StorageHelper;
@@ -45,6 +47,7 @@ public class AquariumDetailActivity extends AppCompatActivity {
     private static final String TAG = "AquariumDetailActivity";
     //sqlite
     public FishSQLiteHelper fishSQLiteHelper;
+    public AquariumSQLiteHelper aquariumSQLiteHelper;
 
     //helpers
     FishHelper fishHelper;
@@ -66,6 +69,8 @@ public class AquariumDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aquarium_detail);
 
@@ -81,10 +86,12 @@ public class AquariumDetailActivity extends AppCompatActivity {
         fishHelper = new FishHelper();
         layoutInflater = getLayoutInflater();
         fishSQLiteHelper = new FishSQLiteHelper(getApplicationContext());
+        aquariumSQLiteHelper = new AquariumSQLiteHelper(getApplicationContext());
 
         setAddFishButtonListener();
 
-        populateAquariumDetail();
+        //check aquarium model from intent
+        getAquariumFromIntentExtras(getIntent());
 
         populateFish(false);
     }
@@ -119,39 +126,52 @@ public class AquariumDetailActivity extends AppCompatActivity {
         fishListRecyclerView = (RecyclerView)findViewById(R.id.fishListRecyclerView);
     }
 
-    private void populateAquariumDetail(){
-        if(getIntent()!=null){
+    protected void getAquariumFromIntentExtras(Intent intent){
+        if(intent!=null){
             try {
                 aquariumModel = getIntent().getParcelableExtra("aquarium");
+                //populte aquarium detail
+                populateAquariumDetail(aquariumModel);
             }catch (Exception ex){
                 Log.d(TAG, "populateAquariumDetail: "+ex.getMessage());
             }
-            if(aquariumModel!=null){
-                //populate to view
-                try{
-                    if(!aquariumModel.getImageUri().isEmpty()){
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        final Bitmap aquariumBitmap = BitmapFactory.decodeFile(aquariumModel.getImageUri(), options);
+        }
+    }
 
-                        RequestOptions createOptions = new RequestOptions().centerCrop();
-                        Glide
-                                .with(getApplicationContext())
-                                .load(aquariumBitmap)
-                                .apply(createOptions)
-                                .into(aquariumPhoto);
-                    }
+    private void rePopulateAquariumDetail(int id){
+        Log.d(TAG, "rePopulateAquariumDetail: "+id);
+        aquariumModel = aquariumSQLiteHelper.getAquariumById(id);
+        populateAquariumDetail(aquariumModel);
+    }
+
+    private void populateAquariumDetail(AquariumModel aquariumModel){
+        if(aquariumModel!=null){
+            //populate to view
+            try{
+                if(!aquariumModel.getImageUri().isEmpty()){
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    final Bitmap aquariumBitmap = BitmapFactory.decodeFile(aquariumModel.getImageUri(), options);
+
+                    RequestOptions createOptions = new RequestOptions().centerCrop();
+                    Glide
+                            .with(getApplicationContext())
+                            .load(aquariumBitmap)
+                            .apply(createOptions)
+                            .into(aquariumPhoto);
                 }
-                catch (Exception ex){
-                    Log.d(TAG, "populateAquariumDetail: "+ex.getMessage());
-                }
-
-
-                detailAquariumName.setText(aquariumModel.getName());
-                detailAquariumDescription.setText(aquariumModel.getDescription());
-                detailLength.setText(String.valueOf(aquariumModel.getAquariumLength()));
-                detailHeight.setText(String.valueOf(aquariumModel.getAquariumHeight()));
-                detailWide.setText(String.valueOf(aquariumModel.getAquariumWide()));
             }
+            catch (Exception ex){
+                Log.d(TAG, "populateAquariumDetail: "+ex.getMessage());
+            }
+
+
+            detailAquariumName.setText(aquariumModel.getName());
+            detailAquariumDescription.setText(aquariumModel.getDescription());
+            detailLength.setText(String.valueOf(aquariumModel.getAquariumLength()));
+            detailHeight.setText(String.valueOf(aquariumModel.getAquariumHeight()));
+            detailWide.setText(String.valueOf(aquariumModel.getAquariumWide()));
+        }else{
+            Log.d(TAG, "populateAquariumDetail: Aquarium Model is NULL");
         }
     }
 
@@ -180,6 +200,10 @@ public class AquariumDetailActivity extends AppCompatActivity {
             //repopulate fish
             isNewFish = true;
             populateFish(true);
+        }else if(requestCode==ActivityResultsCode.EDIT_FISH && resultCode==Activity.RESULT_OK){
+            populateFish(true);
+        }else if(requestCode==ActivityResultsCode.EDIT_AQUARIUM && resultCode==Activity.RESULT_OK){
+            rePopulateAquariumDetail(aquariumModel.getId());
         }
     }
 
@@ -211,8 +235,22 @@ public class AquariumDetailActivity extends AppCompatActivity {
             case android.R.id.home:
                 finishWithResult();
                 break;
+            case R.id.aquariumEditMenu:
+                //Goto Edit Aquarium
+                Intent intent = new Intent(getApplicationContext(), AddAquariumActivity.class);
+                intent.putExtra("aquariumModel", aquariumModel);
+                startActivityForResult(intent, ActivityResultsCode.EDIT_AQUARIUM);
+                break;
+            case R.id.aquariumDeleteMenu:
+                break;
         }
         return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.popup_menu_aquarium, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void finishWithResult(){

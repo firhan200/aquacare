@@ -66,6 +66,18 @@ public class FishSQLiteHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
+    public long updateData(FishModel model){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_IMAGE_URI, model.getImageUri());
+        contentValues.put(COL_IMAGE_THUMBNAIL_URI, model.getImageUri());
+        contentValues.put(COL_NAME, model.getName());
+        contentValues.put(COL_TYPE, model.getType());
+        contentValues.put(COL_DESCRIPTION, model.getDescription());
+        contentValues.put(COL_PURCHASE_DATE, model.getPurchaseDate());
+        long newRowId = sqLiteDatabase.update(TABLE_NAME, contentValues, COL_ID+"="+model.getId(), null);
+        return newRowId;
+    }
+
     public int deleteData(int id){
         int deletedRowsId = sqLiteDatabase.delete(TABLE_NAME, COL_ID+"="+id, null);
         return deletedRowsId;
@@ -85,6 +97,7 @@ public class FishSQLiteHelper extends SQLiteOpenHelper {
     public Cursor getLatestFishes(int limit){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" ORDER BY Id DESC LIMIT 0,"+limit, null);
+        //db.close();
         return result;
     }
 }

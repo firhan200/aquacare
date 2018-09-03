@@ -11,4 +11,7 @@ public class ActivityResultsCode {
 
     public static final int AQUARIUM_DETAIL = 3;
     public static final int REFRESH_LATEST_FISH = 4;
+
+    public static final int EDIT_AQUARIUM = 5;
+    public static final int EDIT_FISH = 6;
 }

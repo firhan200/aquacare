@@ -3,14 +3,17 @@ package com.learning.firhan.aquacare;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,9 +25,11 @@ import android.widget.RelativeLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
+import com.learning.firhan.aquacare.Fragments.CameraOrGalleryDialogFragment;
 import com.learning.firhan.aquacare.Fragments.DatePickerDialogFragment;
 import com.learning.firhan.aquacare.Helpers.CommonHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
+import com.learning.firhan.aquacare.Helpers.StorageHelper;
 import com.learning.firhan.aquacare.Interfaces.IDatePicker;
 import com.learning.firhan.aquacare.Models.FishModel;
 
@@ -43,11 +48,13 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
     Bitmap fishBitmap;
     EditText fishName,fishType,purchaseDate;
     CommonHelper commonHelper;
-    public Button addFishSubmitButton;
+    public Button addFishSubmitButton,fishChangePhotoButton;
     public ProgressBar addFishLoader;
     String purchaseDateString;
     Toolbar addFishToolbar;
     public FishModel fishModel;
+    Boolean isPhotoChanged,isEdit;
+    StorageHelper storageHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +62,21 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         setContentView(R.layout.activity_add_fish);
         commonHelper = new CommonHelper();
 
-        //get intent extra
-        getIntentExtras();
-
         //initiate all ids on layout
         initIds();
 
+        //get intent extra
+        getIntentExtras();
+
+        //set toolbar
         setAddFishToolbar();
+
+        //check edit or add
+        setAddOrEditFish();
+
         setFishPhoto();
+
+        //set listener
         setFishNameListener();
         setFishTypeListener();
         setPurchaseDateListener();
@@ -78,6 +92,54 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         }
     }
 
+    private void setAddOrEditFish(){
+        isPhotoChanged = false;
+
+        Intent intent = getIntent();
+        if(intent!=null){
+            //check extra
+            if(intent.getExtras()!=null){
+                if(intent.getParcelableExtra("fishModel")!=null){
+                    fishModel = intent.getParcelableExtra("fishModel");
+                    isEdit = true;
+
+                    //init storage helper for get image
+                    storageHelper = new StorageHelper();
+
+                    //show change photo button
+                    fishChangePhotoButton.setVisibility(View.VISIBLE);
+                    //set listener
+                    setFishChangePhotoButtonListener();
+
+                    populatePreviousData(fishModel);
+
+                    setTitle("Edit Fish");
+                }else{
+                    isEdit = false;
+                    isPhotoChanged = true;
+                }
+            }
+        }
+    }
+
+    private void setFishChangePhotoButtonListener(){
+        fishChangePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CameraOrGalleryDialogFragment cameraOrGalleryDialogFragment = new CameraOrGalleryDialogFragment();
+                cameraOrGalleryDialogFragment.show(getSupportFragmentManager(), "CameraOrGallery");
+            }
+        });
+    }
+
+    private void setTitle(String title){
+        try {
+            getSupportActionBar().setTitle(title);
+        }catch (Exception ex){
+            Log.d(TAG, "setTitle: "+ex.getMessage());
+        }
+    }
+
     private void initIds(){
         //init id
         addAquariumMainLayout = (RelativeLayout)findViewById(R.id.addFishMainLayout);
@@ -88,6 +150,13 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         addFishSubmitButton = (Button)findViewById(R.id.addFishSubmitButton);
         addFishToolbar = (Toolbar)findViewById(R.id.addFishToolbar);
         addFishLoader = (ProgressBar)findViewById(R.id.addFishLoader);
+        fishChangePhotoButton = (Button)findViewById(R.id.fishChangePhotoButton);
+    }
+
+    private void populatePreviousData(FishModel fishModel){
+        fishName.setText(fishModel.getName());
+        fishType.setText(fishModel.getType());
+        purchaseDate.setText(fishModel.getPurchaseDate());
     }
 
     private void setAddFishToolbar(){
@@ -98,30 +167,43 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
 
     //get image data from Intent then show it
     private void setFishPhoto(){
-        addAquariumMainLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                deviceWidth = addAquariumMainLayout.getWidth();
+        if(isEdit){
+            //show previous photo
+            try{
+                if(!fishModel.getImageUri().isEmpty()){
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    fishBitmap = BitmapFactory.decodeFile(fishModel.getImageUri(), options);
 
-                //get intent extras
-                if(getIntent().getExtras()!=null){
-                    if(getIntent().getExtras().get("image")!=null){
-                        fishBitmap = (Bitmap) getIntent().getExtras().get("image");
+                    RequestOptions createOptions = new RequestOptions().centerCrop();
+                    Glide
+                            .with(getApplicationContext())
+                            .load(fishBitmap)
+                            .apply(createOptions)
+                            .into(fishPhoto);
+                }
+            }
+            catch (Exception ex){
+                Log.d(TAG, "populateFishDetail: "+ex.getMessage());
+            }
+        }else {
+            //get intent extras
+            if (getIntent().getExtras() != null) {
+                if (getIntent().getExtras().get("image") != null) {
+                    fishBitmap = (Bitmap) getIntent().getExtras().get("image");
+                    setImage(fishBitmap);
+                } else if (getIntent().getExtras().get("imageUri") != null) {
+                    String imageUri = getIntent().getExtras().getString("imageUri");
+                    Uri uri = Uri.parse(imageUri);
+                    fishBitmap = null;
+                    try {
+                        fishBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                         setImage(fishBitmap);
-                    }else if(getIntent().getExtras().get("imageUri")!=null){
-                        String imageUri = getIntent().getExtras().getString("imageUri");
-                        Uri uri = Uri.parse(imageUri);
-                        fishBitmap = null;
-                        try {
-                            fishBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                            setImage(fishBitmap);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        });
+        }
     }
 
     private void setFishNameListener(){
@@ -192,16 +274,25 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         }
 
         //all input is OK ready to save fish
-        fishModel = new FishModel(
-                0,
-                _aquariumId,
-                "",
-                "",
-                fishNameValue,
-                fishTypeValue,
-                "",
-                purchaseDateValue
-        );
+        if(isEdit){
+            //use created object
+            fishModel.setName(fishNameValue);
+            fishModel.setType(fishTypeValue);
+            fishModel.setPurchaseDate(purchaseDateValue);
+        }else{
+            //create new object
+            fishModel = new FishModel(
+                    0,
+                    _aquariumId,
+                    "",
+                    "",
+                    fishNameValue,
+                    fishTypeValue,
+                    "",
+                    purchaseDateValue
+            );
+        }
+
 
         new SaveFishTask().execute();
     }
@@ -222,6 +313,53 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         purchaseDate.setText(purchaseDateString);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        Log.d(TAG, "onOptionsItemSelected: "+item.getItemId());
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==ActivityResultsCode.CAMERA_REQUEST && resultCode==Activity.RESULT_OK){
+            //get image from camera
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            setImage(fishBitmap);
+            isPhotoChanged = true;
+        }else if(requestCode==ActivityResultsCode.GALLERY_REQUEST && resultCode==Activity.RESULT_OK){
+            //get image from gallery
+            Uri uri = data.getData();
+
+            try {
+                // Get the path from the Uri
+                final String path = storageHelper.getPathFromURI(uri, getContentResolver());
+                if (path != null) {
+                    File file = new File(path);
+                    uri = Uri.fromFile(file);
+                    fishBitmap = null;
+                    try {
+                        fishBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        setImage(fishBitmap);
+                        isPhotoChanged = true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception ex) {
+                Log.d(TAG, "onActivityResult: "+ex.getMessage());
+            }
+        }
+    }
+
+    /*
+    ASYNC TASK SECTION
+     */
     class SaveFishTask extends AsyncTask{
 
         FishSQLiteHelper fishSQLiteHelper;
@@ -250,49 +388,59 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            String imageUri = "";
-            String imageThumbnailUri = "";
+            if(isPhotoChanged){
+                String imageUri = "";
+                String imageThumbnailUri = "";
 
-            //save image
-            //get root dir
-            String rootDirectory = Environment.getExternalStorageDirectory().toString();
+                //save image
+                //get root dir
+                String rootDirectory = Environment.getExternalStorageDirectory().toString();
 
-            //create directory if not exist
-            String path = rootDirectory + "/aquacare";
-            File directory = new File(path);
-            if(!directory.exists()){
-                directory.mkdir();
+                //create directory if not exist
+                String path = rootDirectory + "/aquacare";
+                File directory = new File(path);
+                if(!directory.exists()){
+                    directory.mkdir();
+                }
+
+                //generate filename
+                String uuid = UUID.randomUUID().toString();
+                String filename = commonHelper.generateFileName("Fish-", ".jpg");
+                String thumbnailFilename = "Thumbnail-"+filename;
+
+                //save image
+                File file = new File(directory, filename);
+                File fileThumnbail = new File(directory, thumbnailFilename);
+                try {
+                    //resize bitmap
+                    Bitmap resizedBitmap = commonHelper.resizeBitmap(fishBitmap, 600);
+                    Bitmap resizedThumbnailBitmap = resizedBitmap;
+
+                    //save main image
+                    commonHelper.saveImageJPEG(file, resizedBitmap);
+                    //save thumnail image
+                    commonHelper.saveImageJPEG(fileThumnbail, resizedThumbnailBitmap);
+
+                    imageUri = directory+"/"+filename;
+                    imageThumbnailUri = directory+"/"+thumbnailFilename;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                fishModel.setImageUri(imageUri);
+                fishModel.setImageThumbnailUri(imageThumbnailUri);
             }
-
-            //generate filename
-            String uuid = UUID.randomUUID().toString();
-            String filename = commonHelper.generateFileName("Fish-", ".jpg");
-            String thumbnailFilename = "Thumbnail-"+filename;
-
-            //save image
-            File file = new File(directory, filename);
-            File fileThumnbail = new File(directory, thumbnailFilename);
-            try {
-                //resize bitmap
-                Bitmap resizedBitmap = commonHelper.resizeBitmap(fishBitmap, 600);
-                Bitmap resizedThumbnailBitmap = resizedBitmap;
-
-                //save main image
-                commonHelper.saveImageJPEG(file, resizedBitmap);
-                //save thumnail image
-                commonHelper.saveImageJPEG(fileThumnbail, resizedThumbnailBitmap);
-
-                imageUri = directory+"/"+filename;
-                imageThumbnailUri = directory+"/"+thumbnailFilename;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            fishModel.setImageUri(imageUri);
-            fishModel.setImageThumbnailUri(imageThumbnailUri);
 
             //insert into sqlite
-            long newRowId = fishSQLiteHelper.insertData(fishModel);
+            long newRowId = 0;
+            if(isEdit){
+                //update data
+                newRowId = fishSQLiteHelper.updateData(fishModel);
+            }else{
+                //insert data
+                newRowId = fishSQLiteHelper.insertData(fishModel);
+            }
+
             if(newRowId > 0){
                 isSuccess = true;
             }
