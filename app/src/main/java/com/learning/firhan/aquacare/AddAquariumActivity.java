@@ -13,6 +13,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -343,6 +344,18 @@ public class AddAquariumActivity extends AppCompatActivity {
                 .into(aquariumPhoto);
 
         isPhotoChanged = true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        Log.d(TAG, "onOptionsItemSelected: "+item.getItemId()+" : "+android.R.id.home);
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

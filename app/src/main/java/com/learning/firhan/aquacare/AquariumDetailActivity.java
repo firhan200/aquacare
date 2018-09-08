@@ -1,6 +1,7 @@
 package com.learning.firhan.aquacare;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -17,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,11 +31,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.learning.firhan.aquacare.Adapters.AquariumListAdapter;
 import com.learning.firhan.aquacare.Adapters.FishListAdapter;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Fragments.CameraOrGalleryDialogFragment;
 import com.learning.firhan.aquacare.Fragments.HomeFragment;
 import com.learning.firhan.aquacare.Helpers.AquariumSQLiteHelper;
+import com.learning.firhan.aquacare.Helpers.CommonHelper;
 import com.learning.firhan.aquacare.Helpers.FishHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Helpers.StorageHelper;
@@ -242,6 +246,8 @@ public class AquariumDetailActivity extends AppCompatActivity {
                 startActivityForResult(intent, ActivityResultsCode.EDIT_AQUARIUM);
                 break;
             case R.id.aquariumDeleteMenu:
+                String messageText = "Delete "+aquariumModel.getName()+"? (All fish inside this aquarium will also be deleted)";
+                showDeleteDialog("Delete Anyway", "Cancel", messageText, aquariumModel.getId());
                 break;
         }
         return true;
@@ -257,6 +263,25 @@ public class AquariumDetailActivity extends AppCompatActivity {
         Intent mainIntent = new Intent(this, MainActivity.class);
         setResult(ActivityResultsCode.REFRESH_LATEST_FISH, mainIntent);
         finish();
+    }
+
+    private void showDeleteDialog(String yesLabel, String noLabel, String messageText, final int parameterId){
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this,R.style.AppTheme_Dialog));
+        builder.setMessage(messageText)
+                .setPositiveButton(yesLabel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        new DeleteAquariumTask(parameterId).execute();
+                    }
+                })
+                .setNegativeButton(noLabel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.create();
+        builder.show();
     }
 
     public void populateFish(Boolean isRefreshing){
@@ -317,6 +342,50 @@ public class AquariumDetailActivity extends AppCompatActivity {
                 setFishRecyclerView(fishModels);
             }else{
                 fishListAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    class DeleteAquariumTask extends AsyncTask{
+        AquariumSQLiteHelper aquariumSQLiteHelper;
+        FishSQLiteHelper fishSQLiteHelper;
+        Boolean isSuccess = false;
+        private int aquariumId;
+
+        public DeleteAquariumTask(int aquariumId) {
+            aquariumSQLiteHelper = new AquariumSQLiteHelper(getApplicationContext());
+            fishSQLiteHelper = new FishSQLiteHelper(getApplicationContext());
+            this.aquariumId = aquariumId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            //getDialog().dismiss();
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            int deleteRowID = aquariumSQLiteHelper.deleteData(aquariumId);
+            if(deleteRowID > 0){
+                //deleting fish
+                fishSQLiteHelper.deleteFishByAquariumId(aquariumId);
+
+                isSuccess = true;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+
+            if(isSuccess){
+                CommonHelper commonHelper = new CommonHelper();
+                commonHelper.showToast(getApplicationContext(), "Deleting Success!");
+
+                //goto main activity
+                finishWithResult();
             }
         }
     }
