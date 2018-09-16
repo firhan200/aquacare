@@ -27,4 +27,5 @@
 
     <dimen name="fishListNameSize">14sp</dimen>
     <dimen name="fishListTypeSize">14sp</dimen>
+    <dimen name="fishListAgeSize">10sp</dimen>
 </resources>

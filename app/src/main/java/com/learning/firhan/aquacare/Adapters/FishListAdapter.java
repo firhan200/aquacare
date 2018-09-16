@@ -28,7 +28,9 @@ import com.learning.firhan.aquacare.AddAquariumActivity;
 import com.learning.firhan.aquacare.AddFishActivity;
 import com.learning.firhan.aquacare.AquariumDetailActivity;
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
+import com.learning.firhan.aquacare.FishDetailActivity;
 import com.learning.firhan.aquacare.Helpers.CommonHelper;
+import com.learning.firhan.aquacare.Helpers.FishHelper;
 import com.learning.firhan.aquacare.Helpers.FishSQLiteHelper;
 import com.learning.firhan.aquacare.Models.FishModel;
 import com.learning.firhan.aquacare.R;
@@ -45,6 +47,7 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
 
     //helpers
     CommonHelper commonHelper;
+    FishHelper fishHelper;
 
     public FishListAdapter(ArrayList<FishModel> fishModels, Context context) {
         this.fishModels = fishModels;
@@ -52,6 +55,7 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
 
         fishSQLiteHelper = new FishSQLiteHelper(context);
         commonHelper = new CommonHelper();
+        fishHelper = new FishHelper();
     }
 
     @Override
@@ -78,6 +82,7 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
 
         viewHolder.listItemFishName.setText(fishModel.getName());
         viewHolder.listItemFishType.setText(fishModel.getType());
+        viewHolder.listItemFishAge.setText(fishHelper.getAgeInDays(fishModel.getPurchaseDate()));
 
         String thumbnail = fishModel.getImageThumbnailUri();
 
@@ -109,6 +114,17 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_aquarium, popupMenu.getMenu());
                 popupMenu.show();
                 setPopUpMenuOnClickListener(fishModel, popupMenu);
+            }
+        });
+
+        //fish tap
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //go to fish detail activity
+                Intent intent = new Intent(context, FishDetailActivity.class);
+                intent.putExtra("fish", fishModel);
+                context.startActivity(intent);
             }
         });
     }
@@ -160,13 +176,14 @@ public class FishListAdapter extends RecyclerView.Adapter<FishListAdapter.ViewHo
 
     class ViewHolder extends RecyclerView.ViewHolder{
         ImageButton listItemFishMenu;
-        TextView listItemFishName,listItemFishType;
+        TextView listItemFishName,listItemFishType,listItemFishAge;
         ImageView listItemFishPhoto;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             listItemFishName = (TextView)itemView.findViewById(R.id.listItemFishName);
             listItemFishType = (TextView)itemView.findViewById(R.id.listItemFishType);
+            listItemFishAge = (TextView)itemView.findViewById(R.id.listItemFishAge);
             listItemFishPhoto = (ImageView)itemView.findViewById(R.id.listItemfishPhoto);
             listItemFishMenu = (ImageButton)itemView.findViewById(R.id.listItemFishMenu);
         }

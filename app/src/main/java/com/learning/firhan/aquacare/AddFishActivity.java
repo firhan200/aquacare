@@ -46,7 +46,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
     ImageView fishPhoto;
     int deviceWidth,_aquariumId;
     Bitmap fishBitmap;
-    EditText fishName,fishType,purchaseDate;
+    EditText fishName,fishType,fishDescription,purchaseDate;
     CommonHelper commonHelper;
     public Button addFishSubmitButton,fishChangePhotoButton;
     public ProgressBar addFishLoader;
@@ -79,6 +79,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         //set listener
         setFishNameListener();
         setFishTypeListener();
+        setFishDescriptionListener();
         setPurchaseDateListener();
         setAddFishSubmitButtonListener();
     }
@@ -146,6 +147,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         fishPhoto = (ImageView)findViewById(R.id.fishPhoto);
         fishName = (EditText)findViewById(R.id.fishName);
         fishType = (EditText)findViewById(R.id.fishType);
+        fishDescription = (EditText)findViewById(R.id.fishDescription);
         purchaseDate = (EditText)findViewById(R.id.purchaseDate);
         addFishSubmitButton = (Button)findViewById(R.id.addFishSubmitButton);
         addFishToolbar = (Toolbar)findViewById(R.id.addFishToolbar);
@@ -156,6 +158,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
     private void populatePreviousData(FishModel fishModel){
         fishName.setText(fishModel.getName());
         fishType.setText(fishModel.getType());
+        fishDescription.setText(fishModel.getDescription());
         purchaseDate.setText(fishModel.getPurchaseDate());
     }
 
@@ -228,6 +231,17 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
         });
     }
 
+    private void setFishDescriptionListener(){
+        fishDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    commonHelper.hideKeyboard(getApplicationContext(), v);
+                }
+            }
+        });
+    }
+
     private void setPurchaseDateListener(){
         purchaseDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -253,6 +267,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
     private void saveFishValidation(View v){
         String fishNameValue = fishName.getText().toString();
         String fishTypeValue = fishType.getText().toString();
+        String fishDescriptionValue = fishDescription.getText().toString();
         String purchaseDateValue = purchaseDate.getText().toString();
 
         if(fishNameValue.equals("")){
@@ -267,6 +282,12 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
             return;
         }
 
+        if(fishDescriptionValue.equals("")){
+            commonHelper.showSnackBar(v, "Fish Description Cannot be Empty!");
+            fishDescription.requestFocus();
+            return;
+        }
+
         if(purchaseDateValue.equals("")){
             commonHelper.showSnackBar(v, "Purchase Date Cannot be Empty!");
             purchaseDate.requestFocus();
@@ -278,6 +299,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
             //use created object
             fishModel.setName(fishNameValue);
             fishModel.setType(fishTypeValue);
+            fishModel.setDescription(fishDescriptionValue);
             fishModel.setPurchaseDate(purchaseDateValue);
         }else{
             //create new object
@@ -288,7 +310,7 @@ public class AddFishActivity extends AppCompatActivity implements IDatePicker {
                     "",
                     fishNameValue,
                     fishTypeValue,
-                    "",
+                    fishDescriptionValue,
                     purchaseDateValue
             );
         }

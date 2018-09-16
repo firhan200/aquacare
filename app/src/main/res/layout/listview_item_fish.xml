@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/fishListNameSize"
             android:textColor="@android:color/black"
-            android:maxLines="2"
+            android:maxLines="1"
             android:ellipsize="end"/>
 
         <TextView
@@ -41,6 +41,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/fishListTypeSize"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/listItemFishAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/fishListAgeSize"
+            android:textColor="@color/fishListAgeColor"
+            android:layout_gravity="end"
             android:maxLines="1"
             android:ellipsize="end"/>
     </LinearLayout>

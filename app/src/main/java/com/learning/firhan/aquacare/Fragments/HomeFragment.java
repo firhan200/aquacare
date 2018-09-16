@@ -310,7 +310,7 @@ public class HomeFragment extends Fragment {
             latestFishRecyclerView.setLayoutManager(layoutManager);
 
             //set adapter
-            latestFishListAdapter = new LatestFishListAdapter(latestFishModels);
+            latestFishListAdapter = new LatestFishListAdapter(latestFishModels, getContext());
 
             try{
                 latestFishRecyclerView.setAdapter(latestFishListAdapter);

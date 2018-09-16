@@ -1,5 +1,7 @@
 package com.learning.firhan.aquacare.Adapters;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
@@ -14,6 +16,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.learning.firhan.aquacare.FishDetailActivity;
+import com.learning.firhan.aquacare.Helpers.FishHelper;
 import com.learning.firhan.aquacare.Models.FishModel;
 import com.learning.firhan.aquacare.R;
 
@@ -22,14 +26,19 @@ import java.util.ArrayList;
 public class LatestFishListAdapter extends RecyclerView.Adapter<LatestFishListAdapter.ViewHolder> {
     private static final String TAG = "FishListAdapter";
     public ArrayList<FishModel> fishModels;
+    public Context context;
 
-    public LatestFishListAdapter(ArrayList<FishModel> fishModels) {
+    private FishHelper fishHelper;
+
+    public LatestFishListAdapter(ArrayList<FishModel> fishModels, Context context) {
         this.fishModels = fishModels;
+        this.context = context;
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         Log.d(TAG, "onAttachedToRecyclerView: ");
+        fishHelper = new FishHelper();
         super.onAttachedToRecyclerView(recyclerView);
     }
 
@@ -45,21 +54,13 @@ public class LatestFishListAdapter extends RecyclerView.Adapter<LatestFishListAd
         return viewHolder;
     }
 
-    private void setParentLayoutFullWidth(RelativeLayout relativeLayout, boolean isFullWidth){
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        if(!isFullWidth){
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        relativeLayout.setLayoutParams(layoutParams);
-    }
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        FishModel fishModel = fishModels.get(i);
+        final FishModel fishModel = fishModels.get(i);
 
         viewHolder.listItemFishName.setText(fishModel.getName());
         viewHolder.listItemFishType.setText(fishModel.getType());
+        viewHolder.listItemFishAge.setText(fishHelper.getAgeInDays(fishModel.getPurchaseDate()));
 
         String thumbnail = fishModel.getImageThumbnailUri();
 
@@ -82,6 +83,17 @@ public class LatestFishListAdapter extends RecyclerView.Adapter<LatestFishListAd
                 Log.d(TAG, "onBindViewHolder: " + ex.getMessage());
             }
         }
+
+        //fish tap
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //go to fish detail activity
+                Intent intent = new Intent(context, FishDetailActivity.class);
+                intent.putExtra("fish", fishModel);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -91,13 +103,14 @@ public class LatestFishListAdapter extends RecyclerView.Adapter<LatestFishListAd
 
     class ViewHolder extends RecyclerView.ViewHolder{
         RelativeLayout fishListViewItemContainer;
-        TextView listItemFishName,listItemFishType;
+        TextView listItemFishName,listItemFishType,listItemFishAge;
         ImageView listItemFishPhoto;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             listItemFishName = (TextView)itemView.findViewById(R.id.listItemFishName);
             listItemFishType = (TextView)itemView.findViewById(R.id.listItemFishType);
+            listItemFishAge = (TextView)itemView.findViewById(R.id.listItemFishAge);
             listItemFishPhoto = (ImageView)itemView.findViewById(R.id.listItemfishPhoto);
         }
     }

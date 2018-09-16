@@ -20,4 +20,6 @@
 
     <color name="aquariumDetailName">#e4f5f7</color>
     <color name="aquariumDetailDesc">#fff</color>
+
+    <color name="fishListAgeColor">#000</color>
 </resources>
