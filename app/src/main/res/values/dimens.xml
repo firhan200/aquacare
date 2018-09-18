@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="toolbarTitleTextSize">18sp</dimen>
+
     <dimen name="dialogListSidePadding">15dp</dimen>
     <dimen name="dialogListTextSize">14sp</dimen>
     <dimen name="dialogListItemPaddng">10dp</dimen>

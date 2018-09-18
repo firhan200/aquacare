@@ -21,6 +21,7 @@
 
     <!-- fragments -->
     <string name="fragment_home">fragment home</string>
+    <string name="fragment_search">fragment search</string>
 
     <!-- create aquarium -->
     <string name="dialog_fish_title">Create Fish</string>

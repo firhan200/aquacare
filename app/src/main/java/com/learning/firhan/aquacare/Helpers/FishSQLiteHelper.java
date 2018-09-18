@@ -94,6 +94,13 @@ public class FishSQLiteHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    public Cursor getFishByKeyword(String keyword){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_NAME+" LIKE '%"+keyword+"%'", null);
+        //db.close();
+        return result;
+    }
+
     public Cursor getLatestFishes(int limit){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor result = db.rawQuery("SELECT * FROM "+TABLE_NAME+" ORDER BY Id DESC LIMIT 0,"+limit, null);

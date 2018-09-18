@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
@@ -15,18 +16,27 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.learning.firhan.aquacare.Constants.ActivityResultsCode;
 import com.learning.firhan.aquacare.Fragments.HomeFragment;
+import com.learning.firhan.aquacare.Fragments.SearchFragment;
+import com.learning.firhan.aquacare.Helpers.CommonHelper;
 import com.learning.firhan.aquacare.Helpers.StorageHelper;
 import com.learning.firhan.aquacare.Interfaces.IMainActivity;
 
@@ -41,10 +51,22 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     Toolbar customToolbar;
     AppBarLayout customToolbarLayout;
     RelativeLayout frameContainer;
-    StorageHelper storageHelper;
+
+    //toolbar
+    LinearLayout defaultToolbar,searchToolbar;
+    ImageView searchFishButton,closeSearchButton;
+    TextView mainActivityTitle;
+    EditText searchKeyword;
 
     /* Fragments */
     HomeFragment homeFragment;
+    public SearchFragment searchFragment;
+
+    /* Helpers */
+    StorageHelper storageHelper;
+    CommonHelper commonHelper;
+
+    Boolean isSearching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +75,17 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
         initIds();
 
+        //init helpers
+        initHelpers();
+
         setCustomToolbar();
 
-        storageHelper = new StorageHelper();
         layoutInflater = getLayoutInflater();
         fragmentManager = getSupportFragmentManager();
+
+        setSearchFishButtonListener();
+        setCloseSearchButtonListener();
+        setSearchKeywordListener();
 
         //set default fragment
         setFragment(getString(R.string.fragment_home), false, null);
@@ -67,6 +95,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         //set toolbar
         customToolbarLayout.bringToFront();
         setSupportActionBar(customToolbar);
+
+        //set main activity title
+        if(getTitle()!=null){
+            mainActivityTitle.setText(getTitle());
+        }
     }
 
     private void initIds(){
@@ -74,10 +107,100 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         customToolbar = (Toolbar)findViewById(R.id.customToolbar);
         customToolbarLayout = (AppBarLayout)findViewById(R.id.customToolbarLayout);
         frameContainer = (RelativeLayout)findViewById(R.id.frameContainer);
+        mainActivityTitle = (TextView)findViewById(R.id.mainActivityTitle);
+
+        //inner toolbar
+        defaultToolbar = (LinearLayout)findViewById(R.id.defaultToolbar);
+        searchToolbar = (LinearLayout)findViewById(R.id.searchToolbar);
+        searchFishButton = (ImageView)findViewById(R.id.searchFishButton);
+        closeSearchButton = (ImageView)findViewById(R.id.closeSearchButton);
+        searchKeyword = (EditText)findViewById(R.id.searchKeyword);
+    }
+
+    private void initHelpers(){
+        commonHelper = new CommonHelper();
+        storageHelper = new StorageHelper();
+    }
+
+    private void setSearchFishButtonListener(){
+        searchFishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setToSearchAction(true, v);
+            }
+        });
+    }
+
+    private void setToSearchAction(Boolean setToSearch, View view){
+        if(setToSearch){
+            defaultToolbar.setVisibility(View.GONE);
+            searchToolbar.setVisibility(View.VISIBLE);
+
+            searchKeyword.requestFocus(); //focus on keyword input
+            commonHelper.showKeyboard(getApplicationContext(), view); //show keboard
+
+            //set fragment to search
+            setFragment(getString(R.string.fragment_search), true, null);
+        }else{
+            defaultToolbar.setVisibility(View.VISIBLE);
+            searchToolbar.setVisibility(View.GONE);
+
+            searchKeyword.setText("");
+
+            //set fragment to search
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    private void setCloseSearchButtonListener(){
+        closeSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setToSearchAction(false, v);
+            }
+        });
+    }
+
+    private void setSearchKeywordListener(){
+        searchKeyword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //if user idle for 2 second start searching
+                if(!isSearching){
+                    isSearching = true;
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            searchFish(searchKeyword.getText().toString());
+                        }
+                    }, 1000);
+                }
+            }
+        });
+    }
+
+    public void searchFish(String keyword){
+        if(!keyword.equals("")){
+            searchFragment.search(keyword);
+        }
+
+        //set searching to false | ready to search again
+        isSearching = false;
     }
 
     public void setFragment(String fragmentTag, boolean addToBackStack, Bundle bundle){
         String homeTag = getString(R.string.fragment_home);
+        String searchTag = getString(R.string.fragment_search);
 
         //begin fragment transaction
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -87,6 +210,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         if(fragmentTag.equals(homeTag)){
             homeFragment = new HomeFragment();
             fragment = homeFragment;
+        }else if(fragmentTag.equals(searchTag)){
+            searchFragment = new SearchFragment();
+            fragment = searchFragment;
         }
 
         //replace view with fragment
@@ -132,7 +258,10 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         switch (item.getItemId()){
             case android.R.id.home:
                 try{
-                    getSupportFragmentManager().popBackStack();
+                    if(searchToolbar.getVisibility()==View.VISIBLE){
+                        //on search must hide search toolbar
+                        setToSearchAction(false, searchKeyword);
+                    }
                 }catch (Exception ex){
                     Log.d(TAG, "onOptionsItemSelected: "+ex.getMessage());
                 }
@@ -140,6 +269,16 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(searchToolbar.getVisibility()==View.VISIBLE){
+            //on search must hide search toolbar
+            setToSearchAction(false, searchKeyword);
+        }else{
+            super.onBackPressed();
+        }
     }
 
     @Override

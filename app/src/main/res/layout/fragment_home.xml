@@ -44,7 +44,7 @@
 
             <ProgressBar
                 android:id="@+id/latestFishListLoader"
-                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"/>
@@ -64,7 +64,7 @@
 
             <ProgressBar
                 android:id="@+id/aquariumListLoader"
-                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"/>
